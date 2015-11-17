@@ -140,7 +140,6 @@ std::ostream & operator<<( std::ostream & os , const stratum & b )
   unsigned long i = 0;
   const unsigned long s = b.data_.size();
   std::vector< stratum::data_t > members( s );
-
   
   for( ; i != s ; ++i )
   {

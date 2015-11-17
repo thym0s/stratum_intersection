@@ -4,6 +4,9 @@
 #include <utility>
 #include <algorithm>
 #include <functional>
+#include <ostream>
+#include <sstream>
+#include <string>
 
 template<
   class CoefficientType,
@@ -13,6 +16,7 @@ template<
   {
    public:
     monomial();
+    monomial( const CoefficientType & , const BaseType & );
     monomial   ( const monomial &  ) = default;
     monomial   (       monomial && ) = default;
     ~monomial  ()                    = default;
@@ -53,7 +57,6 @@ template<
     typedef std::vector< monomial_t > data_t;
     data_t data_;
 
-   protected:
     void make_monomials_unique();
   };
 
@@ -80,6 +83,11 @@ template< class C , class B >
   polynomial<C,B> operator*( const polynomial<C,B> & ,
                              const polynomial<C,B> & );
 
+template< class C , class B >
+  std::ostream & operator<<( std::ostream & , const monomial<C,B> );
+template< class C , class B >
+  std::ostream & operator<<( std::ostream & , const polynomial<C,B> );
+
 /**
   Implementation monomial
 */ 
@@ -87,6 +95,12 @@ template< class C , class B >
 template< class C , class B >
   monomial<C,B>::monomial()
     : data_()
+  {
+  }
+
+template< class C , class B >
+  monomial<C,B>::monomial( const C & c , const B & b )
+    : data_( c , b )
   {
   }
 
@@ -120,7 +134,7 @@ template< class C , class B >
     bool ret = true;
     const C c1 = a.coefficient();
     const C c2 = b.coefficient();
-    if( ( 0 != c1 ) && ( c1 == c2 ) )
+    if( ( C( 0 ) != c1 ) && ( c1 == c2 ) )
     {
       ret = ( a.base() == b.base() );
     }
@@ -130,7 +144,7 @@ template< class C , class B >
 template< class C , class B >
   bool is_zero( const monomial<C,B> & m )
   {
-    return 0 == m.coefficient();
+    return m.coefficient() == C( 0 );
   }
 
 template< class C , class B >
@@ -146,7 +160,14 @@ template< class C , class B >
   {
     return a.coefficient * b.coefficient * ( a.base() * b.base() );
   }
-    
+
+template< class C , class B >
+  std::ostream & operator<<( std::ostream & os , const monomial<C,B> m )
+  {
+    os << m.coefficient() << ' ' << m.base();
+    return os;
+  }
+
 /**
   Implementation polynomial
 */
@@ -169,7 +190,7 @@ template< class C , class B >
   {
     typename data_t::iterator       i = data_.begin(),
                                     j = data_.begin();
-    typename data_t::const_iterator e = data_.end();
+    typename data_t::iterator const e = data_.end();
 
     // Accumulate all coefficients on first occurence of base
     for( ; i != e ; ++i )
@@ -187,12 +208,14 @@ template< class C , class B >
 
     // Delete all zero monomials
     
-    std::remove_if( i , e , 
+    i = data_.begin();
+    j = std::remove_if( i , e , 
       []( const monomial_t & m )
       {
         return is_zero( m );
       }
     );
+    data_.erase( j , e );
   }
 
 template< class C , class B >
@@ -200,7 +223,7 @@ template< class C , class B >
   {
     polynomial<C,B> ret;
   
-    if( 0 != a )
+    if( C( 0 ) != a )
     {
       ret = b;
       std::for_each( ret.data_.begin() , ret.data_.end() ,
@@ -220,6 +243,7 @@ template< class C , class B >
   {
     polynomial<C,B> ret( a );
     ret.data_.insert( ret.data_.end() , b.data_.begin() , b.data_.end() );
+    ret.make_monomials_unique();
     return ret;
   }
 
@@ -249,6 +273,33 @@ template< class C , class B >
         ret.data_.insert( ret.data_.end() , p.data_.begin() , p.data_.end() );
       }
     }
+
+    ret.make_monomials_unique();
     return ret;
+  }
+
+template< class C , class B >
+  std::ostream & operator<<( std::ostream & os , const polynomial<C,B> p )
+  {
+    std::string ret;
+    std::stringstream ret_stream;
+
+    std::for_each( p.data_.begin() , p.data_.end() ,
+      [&ret_stream]( const monomial<C,B> & m )
+      {
+        ret_stream << m << " + ";
+      }
+    );
+
+    ret = ret_stream.str();
+
+    if( 0 != ret.size() )
+    {
+      ret.erase( ret.size() - 3 );
+    }
+
+    os << ret;
+
+    return os;
   }
 
