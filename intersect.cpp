@@ -5,10 +5,10 @@
 
 int main( int argc, const char ** argv )
 {
-  std::vector< unsigned long > v1 { 1 , 2 , 3 , 1 , 1 };
-  std::vector< unsigned long > v2 { 1 , 1 , 1 , 3 , 1 , 1 };
-  std::vector< unsigned long > v3 { 3 , 3 , 1 , 1 };
-  std::vector< unsigned long > v4 { 3 , 2 , 1 , 1 , 1 };
+  std::vector< unsigned long > v1 { 2 };
+  std::vector< unsigned long > v2 { 3 };
+  std::vector< unsigned long > v3 { 2 , 2 };
+  std::vector< unsigned long > v4 { 3 , 2 };
 
   base_stratum b1( v1 );
   base_stratum b2( v2 );
@@ -26,7 +26,7 @@ int main( int argc, const char ** argv )
   stratum_polynomial_t p4 ( m4 );
 
   stratum_polynomial_t r1 = p1 + p2 + p4 + p4;
-  stratum_polynomial_t r2 = p1 * p2;
+  stratum_polynomial_t r2 = p1 * p1;
   stratum_polynomial_t r3 = p1 * p3;
   stratum_polynomial_t r4 = p1 * ( p2 + p4 );
 
@@ -36,7 +36,7 @@ int main( int argc, const char ** argv )
   std::cout << "p4 = " << p4 << '\n';
 
   std::cout << "p1 + p2 + p4 + p4 = " << r1 << '\n';
-  std::cout << "p1 * p2           = " << r2 << '\n';
+  std::cout << "p1 * p1           = " << r2 << '\n';
   std::cout << "p1 * p3           = " << r3 << '\n';
   std::cout << "p1 * ( p2 + p4 )  = " << r4 << '\n';
 

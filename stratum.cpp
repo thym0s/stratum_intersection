@@ -201,10 +201,47 @@ void fill_reps( ul_v & reps, const ul_v & d )
 
 void recursive_resolve_nt( ul_v & non_transversals , 
                            ul_v & sizes ,
-                           stratum_polynomial_t & ret )
+                           stratum_polynomial_t & ret ,
+                           const boost::rational< signed long > & factor )
 {
-  
+  unsigned long i = 0,
+                j = 0;
+  for( ; i != non_transversals.size() ; ++i )
+  {
+    if( non_transversals[i] != 0 )
+    {
+      break;
+    }
+  }
+
+  if( i == non_transversals.size() )
+  {
+    base_stratum b( sizes );
+    auto m = lift_stratum( sizes );
+    m = factor * m;
+    stratum_polynomial_t p( m );
+    ret = ret + p;
+  } else {
+    for( ; j != sizes.size() ; ++j )
+    {
+      if( ( sizes[j] != 0 ) && ( j != i ) )
+      {
+        ul_v next_t = non_transversals;
+        ul_v next_s = sizes;
+        boost::rational< signed long > next_f = factor;
+
+        next_t[i] += next_t[j];
+        next_t[i] -= 1;
+        next_t[j] = 0;
+        next_s[i] += next_s[j];
+        next_s[j] = 0;
+        next_f *= boost::rational< signed long >( -1 , sizes[j] + 1 );
+        recursive_resolve_nt( next_t , next_s , ret , next_f );
+      }
+    }
+  }
 }
+
 stratum_polynomial_t intersect( const ul_v          & d1 ,
                                 const ul_v          & d2 ,
                                 const permutation_t & p )
@@ -246,7 +283,7 @@ stratum_polynomial_t intersect( const ul_v          & d1 ,
     sizes[i] = std::count( rep2.begin() , rep2.end() , i );
   }
 
-  recursive_resolve_nt( non_transversals , sizes , ret );
+  recursive_resolve_nt( non_transversals , sizes , ret , 1 );
   
   return ret;
 }
