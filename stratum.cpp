@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <cassert>
+#include <cmath>
 
 #include "factorial.h" 
 
@@ -58,16 +59,16 @@ std::ostream & operator<<( std::ostream & os , const base_stratum & b )
   {
     for( i = 0 ; i != b.data_[j] ; ++i )
     {
-      equal_number_string[j] += to_string( j + 2 );
+      equal_number_string[j] += std::to_string( j + 2 );
       equal_number_string[j] += std::string( "," );
     }
   }
 
   if( j > 0 )
   {
-    std::accumulate( equal_number_string.rbegin() ,
-                     equal_number_string.rend() ,
-                     ret );
+    ret = std::accumulate( equal_number_string.rbegin() ,
+                           equal_number_string.rend() ,
+                           ret );
     ret.pop_back();
   }
 
@@ -100,12 +101,11 @@ std::ostream & operator<<( std::ostream & os , const stratum & b )
 unsigned long stabilizer( const base_stratum & b )
 {
   unsigned long ret( 1 );
-  std::for_each( b.data_.begin() , b.data_.end() ,
-    [&ret]( const unsigned long & n )
-    {
-      ret *= factorial< unsigned long >( n );
-    }
-  );
+  unsigned long i = 0;
+  for( ; i != b.data_.size() ; ++i )
+  {
+    ret *= pow( factorial< unsigned long >( i + 2 ) , b.data_[i] );
+  }
   return ret;
 }
 
@@ -127,7 +127,7 @@ stratum_monomial_t lift_stratum( const base_stratum & b )
   s.data_ = b;
 
   stratum_monomial_t ret(
-    boost::rational< signed long >( 1 , deck_group( s ) ) ,
+    boost::rational< signed long >( 1 , deck_group( b ) ) ,
     s );
 
   return ret;
@@ -211,7 +211,7 @@ stratum_polynomial_t intersect( const ul_v          & d1 ,
 
   //Then Intersect: First as many transversal as possible
 
-  for( ; i < ( rep1.size() + 1 ) ; ++i )
+  for( ; ( i + 1 ) < rep1.size() ; ++i )
   {
     if( rep1[i] == rep1[i+1] ) //collapes
     {
@@ -275,7 +275,7 @@ void recurse( tuple_vv & availables ,
     }
     for( i = 0 ; i != availables.size() ; ++i )
     {
-      {
+      if( 0 != availables[i].size() ) {
         tuple_t taken = *( availables[i].rbegin() );
         availables[i].pop_back();
         assert( std::get<1>( taken ) == i );

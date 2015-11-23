@@ -39,6 +39,7 @@ int main( int argc, const char ** argv )
   std::cout << "p1 * p2           = " << r2 << '\n';
   std::cout << "p1 * p3           = " << r3 << '\n';
   std::cout << "p1 * ( p2 + p4 )  = " << r4 << '\n';
+
   return 0;
 }
 
