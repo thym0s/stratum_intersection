@@ -15,20 +15,30 @@ int main( int argc, const char ** argv )
   base_stratum b3( v3 );
   base_stratum b4( v4 );
   
-  monomial< typename boost::rational< unsigned long > , base_stratum > m1( 2 , b1 );
-  monomial< typename boost::rational< unsigned long > , base_stratum > m2( 2 , b2 );
-  monomial< typename boost::rational< unsigned long > , base_stratum > m3( 2 , b3 );
-  monomial< typename boost::rational< unsigned long > , base_stratum > m4( 2 , b4 );
+  auto m1 = lift_stratum( b1 );
+  auto m2 = lift_stratum( b2 );
+  auto m3 = lift_stratum( b3 );
+  auto m4 = lift_stratum( b4 );
 
-  polynomial< typename boost::rational< unsigned long > , base_stratum > p1( m1 );
-  polynomial< typename boost::rational< unsigned long > , base_stratum > p2( m2 );
-  polynomial< typename boost::rational< unsigned long > , base_stratum > p3( m3 );
-  polynomial< typename boost::rational< unsigned long > , base_stratum > p4( m4 );
+  stratum_polynomial_t p1 ( m1 );
+  stratum_polynomial_t p2 ( m2 );
+  stratum_polynomial_t p3 ( m3 );
+  stratum_polynomial_t p4 ( m4 );
 
-  polynomial< typename boost::rational< unsigned long > , base_stratum > p;
-  p = p1 + p4 + p3 + p4;
+  stratum_polynomial_t r1 = p1 + p2 + p4 + p4;
+  stratum_polynomial_t r2 = p1 * p2;
+  stratum_polynomial_t r3 = p1 * p3;
+  stratum_polynomial_t r4 = p1 * ( p2 + p4 );
 
-  std::cout << p << '\n';
+  std::cout << "p1 = " << p1 << '\n';
+  std::cout << "p2 = " << p2 << '\n';
+  std::cout << "p3 = " << p3 << '\n';
+  std::cout << "p4 = " << p4 << '\n';
+
+  std::cout << "p1 + p2 + p4 + p4 = " << r1 << '\n';
+  std::cout << "p1 * p2           = " << r2 << '\n';
+  std::cout << "p1 * p3           = " << r3 << '\n';
+  std::cout << "p1 * ( p2 + p4 )  = " << r4 << '\n';
   return 0;
 }
 

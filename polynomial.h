@@ -67,7 +67,8 @@ template< class C , class B >
 template< class C , class B >
   monomial<C,B> operator*( const C & , const monomial<C,B> & ); 
 template< class C , class B >
-  polynomial<C,B> operator*( const monomial<C,B> & , const monomial<C,B> & );
+  polynomial<C,B> operator*( const monomial<C,B> & ,
+                             const monomial<C,B> & );
 
 template< class C , class B >
   bool operator==( const polynomial<C,B> & , const polynomial<C,B> & );
@@ -151,14 +152,15 @@ template< class C , class B >
   monomial<C,B> operator*( const C & a , const monomial<C,B> & b )
   {
     monomial<C,B> ret( b );
-    ret.base() *= a;
+    ret.coefficient() *= a;
     return ret;
   }
 
 template< class C , class B >
-  polynomial<C,B> operator*( const monomial<C,B> & a , const monomial<C,B> & b )
+  polynomial<C,B> operator*( const monomial<C,B> & a ,
+                             const monomial<C,B> & b )
   {
-    return a.coefficient * b.coefficient * ( a.base() * b.base() );
+    return ( a.coefficient() * b.coefficient() ) * ( a.base() * b.base() );
   }
 
 template< class C , class B >
@@ -259,9 +261,9 @@ template< class C , class B >
                              const polynomial<C,B> & b )
   {
     polynomial<C,B> ret;
-    typename polynomial<C,B>::data_t::iterator i1 = a.data_.begin(),
-                                               i2 = b.data_.begin();
-    typename polynomial<C,B>::data_t::const_iterator e1 = a.data_.end(),
+    typename polynomial<C,B>::data_t::const_iterator i1 = a.data_.begin(),
+                                                     i2 = b.data_.begin(),
+                                                     e1 = a.data_.end(),
                                                      e2 = b.data_.end();
     polynomial<C,B> p;
 
@@ -270,7 +272,9 @@ template< class C , class B >
       for( ; i2 != e2 ; ++i2 )
       {
         p = *i1 * *i2;
-        ret.data_.insert( ret.data_.end() , p.data_.begin() , p.data_.end() );
+        ret.data_.insert( ret.data_.end() , 
+                            p.data_.begin() ,
+                            p.data_.end() );
       }
     }
 
