@@ -176,7 +176,6 @@ void fill_availables(       tuple_vv      & availables ,
   {
     next_av.push_back( std::make_tuple( 1 , 1 , next_rep ) );
     next_rep += 1;
-    availables[1] = next_av;
   }
 
   availables[1] = next_av;
@@ -184,6 +183,20 @@ void fill_availables(       tuple_vv      & availables ,
 
 void fill_reps( ul_v & reps, const ul_v & d )
 {
+  unsigned long i , j , k;
+  unsigned long next_rep = 0;
+
+  for( i = 0 ; i != d.size() ; ++i )
+  {
+    for( j = 0 ; j != d[i] ; ++j )
+    {
+      for( k = 0 ; k != ( i + 2 ) ; ++k )
+      {
+        reps.push_back( next_rep );
+      }
+      next_rep += 1;
+    }
+  }
 }
 
 void recursive_resolve_nt( ul_v & non_transversals , 
@@ -271,6 +284,7 @@ void recurse( tuple_vv & availables ,
 
         std::get<2>( used[i] ) -= 1;
         std::get<1>( used[i] ) += 1;
+        p.pop_back();
       }
     }
     for( i = 0 ; i != availables.size() ; ++i )
@@ -281,26 +295,23 @@ void recurse( tuple_vv & availables ,
         assert( std::get<1>( taken ) == i );
 
         tuple_t changed = taken;
+        p.push_back( std::get<2>( changed ) );
         std::get<2>( changed ) += 1;
         std::get<1>( changed ) -= 1;
         used.push_back( changed );
 
-        p.push_back( std::get<2>( changed ) );
         new_multiplicity = multiplicity * i * ( availables[i].size() + 1 );
         
         recurse( availables , used ,
                  p , choices_left , new_multiplicity ,
                  d1 , d2 , ret );
 
-        std::get<2>( used[i] ) -= 1;
-        std::get<1>( used[i] ) += 1;
-
         used.pop_back();
         availables[i].push_back( taken );
+        p.pop_back();
       }
     }
 
-    p.pop_back();
     ++choices_left;
   }
 }
@@ -324,7 +335,6 @@ stratum_polynomial_t operator*( const stratum & s1 , const stratum & s2 )
   unsigned long multiplicity = 1;
 
   fill_availables( availables , d2 , d1_length );
-  used.resize( availables.size() );
 
   recurse( availables, used ,
            p , d1_length , multiplicity ,
