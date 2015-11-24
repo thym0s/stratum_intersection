@@ -64,6 +64,7 @@ class stratum
   friend stratum_monomial_t lift_stratum( const base_stratum & );
   friend stratum_polynomial_t operator*( const stratum & , const stratum & );
 
+  friend unsigned long deck_group( const stratum & );
  protected:
   base_stratum data_;
 };

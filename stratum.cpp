@@ -121,13 +121,18 @@ unsigned long deck_group( const base_stratum & b )
   return ret;
 }
 
+unsigned long deck_group( const stratum & b )
+{
+  return deck_group( b.data_ );
+}
+
 stratum_monomial_t lift_stratum( const base_stratum & b )
 {
   stratum s;
   s.data_ = b;
 
   stratum_monomial_t ret(
-    boost::rational< signed long >( 1 , deck_group( b ) ) ,
+    boost::rational< signed long >( 1  ) ,
     s );
 
   return ret;
@@ -366,6 +371,21 @@ void recurse( tuple_vv & availables ,
     ++choices_left;
   }
 }
+
+void fix_coefficients( stratum_polynomial_t & p , 
+                       const unsigned long & w1 ,
+                       const unsigned long & w2 )
+{
+  boost::rational< signed long > w1w2( 1 , w1 * w2 );
+  for_each( p.data_.begin() , p.data_.end() ,
+    [w1w2]( stratum_monomial_t & m )
+    {
+      m.coefficient() *= w1w2;
+      m.coefficient() 
+        *= boost::rational< signed long >( deck_group( m.base() ) );
+    }
+  );
+}
               
 stratum_polynomial_t operator*( const stratum & s1 , const stratum & s2 )
 {
@@ -391,6 +411,7 @@ stratum_polynomial_t operator*( const stratum & s1 , const stratum & s2 )
            p , d1_length , multiplicity ,
            d1 , d2 , ret );
   
+  fix_coefficients( ret , deck_group( s1 ) , deck_group( s2 ) );
   return ret;
 }
 
