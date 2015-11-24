@@ -224,7 +224,7 @@ void recursive_resolve_nt( ul_v & non_transversals ,
   } else {
     for( ; j != sizes.size() ; ++j )
     {
-      if( ( sizes[j] != 0 ) && ( j != i ) )
+      if( ( sizes[j] > 1 ) && ( j != i ) )
       {
         ul_v next_t = non_transversals;
         ul_v next_s = sizes;
@@ -235,9 +235,19 @@ void recursive_resolve_nt( ul_v & non_transversals ,
         next_t[j] = 0;
         next_s[i] += next_s[j];
         next_s[j] = 0;
-        next_f *= boost::rational< signed long >( -1 , sizes[j] + 1 );
+        next_f *= boost::rational< signed long >( -sizes[j] , sizes[i] + 1 );
         recursive_resolve_nt( next_t , next_s , ret , next_f );
       }
+    }
+    {
+      ul_v next_t = non_transversals;
+      ul_v next_s = sizes;
+      boost::rational< signed long > next_f = factor;
+
+      next_t[i] -= 1;
+      next_s[i] += 1;
+      next_f *= boost::rational< signed long >( -1 , sizes[i] + 1 );
+      recursive_resolve_nt( next_t , next_s , ret , next_f );
     }
   }
 }
@@ -337,7 +347,11 @@ void recurse( tuple_vv & availables ,
         std::get<1>( changed ) -= 1;
         used.push_back( changed );
 
-        new_multiplicity = multiplicity * i * ( availables[i].size() + 1 );
+        new_multiplicity = multiplicity * i;
+        if( i > 1 )
+        {
+          new_multiplicity *= ( availables[i].size() + 1 );
+        }
         
         recurse( availables , used ,
                  p , choices_left , new_multiplicity ,
