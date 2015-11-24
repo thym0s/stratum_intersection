@@ -243,9 +243,10 @@ template< class C , class B >
   );
 
 /**
-  More graded_algebra::monomial interface
+  More graded_algebra::element interface
 */
- //sort, 
+ //sort, u* u- + - * * *, == !=, <<
+
 /**
   Implementation monomial
 */ 
